@@ -1,0 +1,196 @@
+Popzy.modalList = [];
+
+function Popzy(options = {}) {
+	this.opt = Object.assign(
+		{
+			destroyOnClose: true,
+			cssClass: [],
+			footer: false,
+			closeMethod: ["button", "overlay", "escape"],
+		},
+		options
+	);
+	const templateElement = document.querySelector(`#${this.opt.templateId}`);
+	this._buttonList = [];
+}
+
+Popzy.prototype._handleScrollbar = function () {
+	if (this._handleScrollbar.value) return this._handleScrollbar.value;
+
+	const div = document.createElement("div");
+
+	Object.assign(div.style, {
+		overflow: "scroll",
+		position: "absolute",
+		top: "-9999px",
+	});
+
+	document.body.append(div);
+
+	this._handleScrollbar.value = div.offsetWidth - div.clientWidth;
+
+	return this._handleScrollbar.value;
+};
+
+Popzy.prototype._build = function () {
+	if (!templateElement) {
+		console.error(`#${this.opt.templateId} does not exist`);
+		return;
+	}
+
+	const templateContent = templateElement.content.cloneNode(true);
+
+	const { closeMethod } = this.opt;
+	this._closeButtonMethod = closeMethod.includes("button");
+	this._closeOverlayMethod = closeMethod.includes("overlay");
+	this._closeEscapeMethod = closeMethod.includes("escape");
+
+	this._backdrop = document.createElement("div");
+	this._backdrop.classList.add("popzy__backdrop");
+
+	const container = document.createElement("div");
+	container.classList.add("popzy__container");
+
+	const content = document.createElement("div");
+	content.classList.add("popzy__content");
+	content.append(templateContent);
+
+	this.opt.cssClass.forEach((className) => {
+		if (typeof className === "string") {
+			container.classList.add(className);
+		}
+	});
+
+	if (this._closeButtonMethod) {
+		const closeButton = this._createButton(
+			"&times;",
+			"popzy__close",
+			() => {
+				this.close();
+			}
+		);
+
+		container.append(closeButton);
+	}
+
+	container.append(content);
+
+	if (this.opt.footer) {
+		this._footer = document.createElement("div");
+		this._footer.classList.add("popzy__footer");
+
+		if (this._footerContent) {
+			this._footer.innerHTML = this._footerContent;
+		}
+
+		this._buttonList.forEach((btn) => {
+			this._footer.append(btn);
+		});
+
+		container.append(this._footer);
+	}
+
+	this._backdrop.append(container);
+	document.body.append(this._backdrop);
+
+	if (this._closeOverlayMethod) {
+		this._backdrop.onclick = (e) => {
+			if (e.target === this._backdrop) {
+				this.close();
+			}
+		};
+	}
+};
+
+Popzy.prototype._handleEscapeKey = function (e) {
+	const lastModalList = Popzy.modalList[Popzy.modalList.length - 1];
+	if (e.key === "Escape" && this === lastModalList) {
+		this.close();
+	}
+};
+
+Popzy.prototype.setFooterContent = function (content) {
+	this._footerContent = content;
+
+	if (this._footer) {
+		this._footer.innerHTML = this._footerContent;
+	}
+};
+
+Popzy.prototype.addFooterButton = function (title, cssClass, callback) {
+	const btn = this._createButton(title, cssClass, callback);
+	this._buttonList.push(btn);
+
+	if (this._footer) {
+		this._buttonList.forEach((btn) => {
+			this._footer.append(btn);
+		});
+	}
+};
+
+Popzy.prototype._createButton = function (title, cssClass, callback) {
+	const button = document.createElement("button");
+	button.innerHTML = title;
+	button.className = cssClass;
+	button.onclick = callback;
+
+	return button;
+};
+
+Popzy.prototype.open = function () {
+	Popzy.modalList.push(this);
+
+	if (!this._backdrop) {
+		this._build();
+	}
+
+	setTimeout(() => {
+		this._backdrop.classList.add("popzy--show");
+	}, 0);
+
+	if (this._closeEscapeMethod) {
+		this._handleEscapeKey = this._handleEscapeKey.bind(this);
+		document.addEventListener("keydown", this._handleEscapeKey);
+	}
+
+	// Add no-scroll and paddingRight in body
+	document.body.classList.add("popzy--no-scroll");
+	document.body.style.paddingRight = this._handleScrollbar() + "px";
+
+	this._onTransitionEnd(this.opt.onOpen);
+	return this._backdrop;
+};
+
+Popzy.prototype._onTransitionEnd = function (callback) {
+	this._backdrop.ontransitionend = (e) => {
+		if (e.propertyName !== "opacity") return;
+		if (typeof callback === "function") callback();
+	};
+};
+
+Popzy.prototype.close = function (destroy = this.opt.destroyOnClose) {
+	Popzy.modalList.pop();
+	this._backdrop.classList.remove("popzy--show");
+	document.removeEventListener("keydown", this._handleEscapeKey);
+
+	this._onTransitionEnd(() => {
+		if (destroy) {
+			this._backdrop.remove();
+			this._backdrop = null;
+			this._footerContent = null;
+		}
+		if (typeof this.opt.onClose === "function") {
+			this.opt.onClose();
+		}
+
+		// Remove no-scroll and paddingRight in body
+		if (!Popzy.modalList.length) {
+			document.body.classList.remove("popzy--no-scroll");
+			document.body.style.paddingRight = "";
+		}
+	});
+};
+
+Popzy.prototype.destroy = function () {
+	this.close(true);
+};

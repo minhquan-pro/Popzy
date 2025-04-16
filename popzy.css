@@ -1,0 +1,61 @@
+.popzy__backdrop {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity, visibility;
+	transition-duration: 0.3s;
+}
+
+.popzy--show {
+	opacity: 1;
+	visibility: visible;
+}
+
+.popzy--show .popzy__container {
+	transform: scale(1);
+}
+
+.popzy__container {
+	position: relative;
+	background: #fff;
+	width: min(600px, 100%);
+	border-radius: 10px;
+	padding: 20px;
+	transform: scale(0);
+	transition: transform 0.3s;
+}
+
+.popzy__content {
+	margin-top: 30px;
+	max-height: 80vh;
+	overflow: auto;
+}
+
+.popzy__close {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: #eee;
+	font-size: 2rem;
+}
+
+.popzy--no-scroll {
+	overflow: hidden;
+}
+
+.popzy__footer {
+	margin-top: 20px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
