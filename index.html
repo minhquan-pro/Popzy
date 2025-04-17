@@ -435,14 +435,10 @@ modal.close();</code></pre>
 		</div>
 		<!-- /CONTAINER -->
 
-		<template id="modal-1">
-			<h1>Template modal 1</h1>
-		</template>
-
 		<script src="./src/popzy.js"></script>
 		<script>
+			// Basic Modal
 			const modal1Btn = document.querySelector(".js-popzy-modal-1");
-
 			const modal1 = new Popzy({
 				enableScrollLock: true,
 				content: `
@@ -450,9 +446,117 @@ modal.close();</code></pre>
 					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit laboriosam itaque ratione velit molestias.</p>
 				`,
 			});
-
 			modal1Btn.onclick = () => {
 				modal1.open();
+			};
+
+			// Modal with Buttons
+			const modal2Btn = document.querySelector(".js-popzy-modal-2");
+			const modal2 = new Popzy({
+				enableScrollLock: true,
+				content: `
+					<h1>Modal with Buttons</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit laboriosam itaque ratione velit molestias.</p>
+				`,
+				footer: true,
+			});
+			modal2.addFooterButton("Cancle", "modal-btn", () => {
+				modal2.close();
+			});
+			modal2Btn.onclick = () => {
+				modal2.open();
+			};
+
+			// Large Content Modal
+			const modal3Btn = document.querySelector(".js-popzy-modal-3");
+			const modal3 = new Popzy({
+				enableScrollLock: true,
+				content: `
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.</p>
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe, eius iusto nisi dignissimos doloribus distinctio. Atque quasi voluptate at optio.</p>
+				`,
+				footer: true,
+			});
+			modal3.addFooterButton("Cancle", "modal-btn", () => {
+				modal3.close();
+			});
+			modal3Btn.onclick = () => {
+				modal3.open();
+			};
+
+			// Footer-Only Close Modal
+			const modal4Btn = document.querySelector(".js-popzy-modal-4");
+			const modal4 = new Popzy({
+				enableScrollLock: true,
+				content: `
+					<h1>Footer-Only Close Modal</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit laboriosam itaque ratione velit molestias.</p>
+				`,
+				footer: true,
+			});
+			modal4.addFooterButton("Cancle", "modal-btn", () => {
+				modal4.close();
+			});
+			modal4.addFooterButton("Confirm", "modal-btn primary", () => {
+				console.log("Something.....");
+				modal4.close();
+			});
+			modal4Btn.onclick = () => {
+				modal4.open();
+			};
+
+			// Stay In DOM
+			const modal5Btn = document.querySelector(".js-popzy-modal-5");
+			const modal5 = new Popzy({
+				enableScrollLock: true,
+				content: `
+					<h1>Stay In DOM	</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit laboriosam itaque ratione velit molestias.</p>
+				`,
+				footer: true,
+				destroyOnClose: false,
+			});
+			modal5.addFooterButton("Cancle", "modal-btn", () => {
+				modal5.close();
+			});
+			modal5Btn.onclick = () => {
+				modal5.open();
+			};
+
+			// Multiple Modal
+			const modal6Btn = document.querySelector(".js-popzy-modal-6");
+			const modal6 = new Popzy({
+				enableScrollLock: true,
+				content: `
+					<button onclick="modal2.open()" class="modal-btn danger">Open Modal</button>
+					<h1>Multiple Modal</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit laboriosam itaque ratione velit molestias.</p>
+				`,
+				footer: true,
+				destroyOnClose: false,
+			});
+			modal6.addFooterButton("Cancle", "modal-btn", () => {
+				modal6.close();
+			});
+			modal6Btn.onclick = () => {
+				modal6.open();
+			};
+
+			// Youtobe Modal
+			const modal7Btn = document.querySelector(".js-popzy-modal-7");
+			const modal7 = new Popzy({
+				enableScrollLock: true,
+				content: `
+					<iframe width="560" height="315" src="https://www.youtube.com/embed/6acS2vOxmRI?si=DwFTDSQxFtWHYqCf&amp;start=2" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+				`,
+				destroyOnClose: false,
+			});
+			modal7Btn.onclick = () => {
+				modal7.open();
 			};
 		</script>
 	</body>

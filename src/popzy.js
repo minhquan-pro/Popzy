@@ -201,9 +201,8 @@ Popzy.prototype.open = function () {
 	}
 
 	// Add no-scroll and paddingRight in body
-	if (this.opt.enableScrollLock) {
+	if (Popzy.modalList.length === 1 && this.opt.enableScrollLock) {
 		const target = this.opt.scrollLockTarget();
-
 		if (this._hasScrollbar(target)) {
 			target.classList.add("popzy--no-scroll");
 			const targetPadRight = parseInt(
