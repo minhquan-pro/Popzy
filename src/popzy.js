@@ -1,16 +1,42 @@
 Popzy.modalList = [];
 
 function Popzy(options = {}) {
+	if (!options.content && !options.templateId) {
+		console.error("You must provide one of 'content' or 'templateId'");
+
+		return;
+	}
+
+	if (options.content && options.templateId) {
+		options.templateId = null;
+		console.warn(
+			"Both 'content' and 'templateId' are specified. 'content will take precedence' and 'templateId ' will be ignored "
+		);
+	}
+
+	if (options.templateId) {
+		this._templateElement = document.querySelector(
+			`#${options.templateId}`
+		);
+		if (!this._templateElement) {
+			console.error(`#${options.templateId} does not exist`);
+			return;
+		}
+	}
+
 	this.opt = Object.assign(
 		{
+			enableScrollLock: true,
 			destroyOnClose: true,
 			cssClass: [],
 			footer: false,
 			closeMethod: ["button", "overlay", "escape"],
+			scrollLockTarget: () => document.body,
 		},
 		options
 	);
-	const templateElement = document.querySelector(`#${this.opt.templateId}`);
+
+	this.content = this.opt.content;
 	this._buttonList = [];
 }
 
@@ -33,12 +59,13 @@ Popzy.prototype._handleScrollbar = function () {
 };
 
 Popzy.prototype._build = function () {
-	if (!templateElement) {
-		console.error(`#${this.opt.templateId} does not exist`);
-		return;
-	}
+	const contentNode = this.content
+		? document.createElement("div")
+		: this._templateElement.content.cloneNode(true);
 
-	const templateContent = templateElement.content.cloneNode(true);
+	if (this.content) {
+		contentNode.innerHTML = this.content;
+	}
 
 	const { closeMethod } = this.opt;
 	this._closeButtonMethod = closeMethod.includes("button");
@@ -51,9 +78,9 @@ Popzy.prototype._build = function () {
 	const container = document.createElement("div");
 	container.classList.add("popzy__container");
 
-	const content = document.createElement("div");
-	content.classList.add("popzy__content");
-	content.append(templateContent);
+	this._modalContent = document.createElement("div");
+	this._modalContent.classList.add("popzy__content");
+	this._modalContent.append(contentNode);
 
 	this.opt.cssClass.forEach((className) => {
 		if (typeof className === "string") {
@@ -73,7 +100,7 @@ Popzy.prototype._build = function () {
 		container.append(closeButton);
 	}
 
-	container.append(content);
+	container.append(this._modalContent);
 
 	if (this.opt.footer) {
 		this._footer = document.createElement("div");
@@ -102,10 +129,30 @@ Popzy.prototype._build = function () {
 	}
 };
 
+Popzy.prototype._hasScrollbar = function (target) {
+	if ([document.documentElement, document.body].includes(target)) {
+		return (
+			document.documentElement.scrollHeight >
+				document.documentElement.clientHeight ||
+			document.body.scrollHeight > document.body.clientHeight
+		);
+	}
+
+	return target.scrollHeight > target.clientHeight;
+};
+
 Popzy.prototype._handleEscapeKey = function (e) {
 	const lastModalList = Popzy.modalList[Popzy.modalList.length - 1];
 	if (e.key === "Escape" && this === lastModalList) {
 		this.close();
+	}
+};
+
+Popzy.prototype.setContent = function (content) {
+	this.content = content;
+
+	if (this._modalContent) {
+		this._modalContent.innerHTML = this.content;
 	}
 };
 
@@ -154,9 +201,19 @@ Popzy.prototype.open = function () {
 	}
 
 	// Add no-scroll and paddingRight in body
-	document.body.classList.add("popzy--no-scroll");
-	document.body.style.paddingRight = this._handleScrollbar() + "px";
+	if (this.opt.enableScrollLock) {
+		const target = this.opt.scrollLockTarget();
 
+		if (this._hasScrollbar(target)) {
+			target.classList.add("popzy--no-scroll");
+			const targetPadRight = parseInt(
+				getComputedStyle(target).paddingRight
+			);
+
+			target.style.paddingRight =
+				targetPadRight + this._handleScrollbar() + "px";
+		}
+	}
 	this._onTransitionEnd(this.opt.onOpen);
 	return this._backdrop;
 };
@@ -184,9 +241,13 @@ Popzy.prototype.close = function (destroy = this.opt.destroyOnClose) {
 		}
 
 		// Remove no-scroll and paddingRight in body
-		if (!Popzy.modalList.length) {
-			document.body.classList.remove("popzy--no-scroll");
-			document.body.style.paddingRight = "";
+		if (this.opt.enableScrollLock && !Popzy.modalList.length) {
+			const target = this.opt.scrollLockTarget();
+
+			if (this._hasScrollbar(target)) {
+				target.classList.remove("popzy--no-scroll");
+				target.style.paddingRight = "";
+			}
 		}
 	});
 };
